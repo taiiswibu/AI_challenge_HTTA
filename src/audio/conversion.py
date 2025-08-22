@@ -83,7 +83,7 @@ def audio_to_transcript(base_input_path, base_output_path):
 
             with open(f"{output_part_path}/{audio_name}.txt", "w", encoding="utf-8") as f:
                 for segment in segments:
-                    f.write(f"{segment.text}\n")
+                    f.write(f"{segment.start},{segment.end},{segment.text}\n")
 
 
 if __name__ == "__main__":
