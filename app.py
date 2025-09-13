@@ -3,12 +3,21 @@ from pathlib import Path
 from PIL import Image
 import pandas as pd
 from deep_translator import GoogleTranslator
-from code.search import search_videos_by_text, format_search_results_multi
-from code.helpers import keyframe_path_from_frame_idx_multi_auto
+import sys
+
+# ===================== IMPORT MODULES =====================
+# Thêm folder code vào sys.path để tránh lỗi import khi chạy trực tiếp
+sys.path.append(str(Path(__file__).parent / "code"))
+
+from app_code.search import search_videos_by_text, format_search_results_multi
+from app_code.helpers import keyframe_path_from_frame_idx_multi_auto
+from app_code.config import CSV_DIRS, FRAME_DIRS
+
+
 
 # ===================== CONFIG =====================
 st.set_page_config(
-    layout="wide", 
+    layout="wide",
     page_title="Hệ thống truy vấn thông minh",
     page_icon="🎯"
 )
@@ -28,8 +37,17 @@ query_vi = st.text_input("📝 Nhập nội dung muốn tìm:")
 
 with st.expander("⚙️ Tùy chọn nâng cao"):
     top_k = st.slider("Số kết quả muốn hiển thị (top_k)", min_value=5, max_value=50, value=20, step=5)
-    search_mode = st.selectbox("Chế độ tìm kiếm", options=["fast", "balanced", "accurate"], index=1, help="fast: nhanh nhưng ít chính xác, balanced: cân bằng, accurate: chính xác nhất nhưng chậm hơn")
-    batch_select = st.multiselect("Chọn batch dữ liệu", options=["Batch1", "Batch2"], default=["Batch1", "Batch2"])
+    search_mode = st.selectbox(
+        "Chế độ tìm kiếm",
+        options=["fast", "balanced", "accurate"],
+        index=1,
+        help="fast: nhanh nhưng ít chính xác, balanced: cân bằng, accurate: chính xác nhất nhưng chậm hơn"
+    )
+    batch_select = st.multiselect(
+        "Chọn batch dữ liệu",
+        options=["Batch1", "Batch2"],
+        default=["Batch1", "Batch2"]
+    )
 
 # ===================== XỬ LÝ =====================
 if query_vi:
@@ -39,9 +57,7 @@ if query_vi:
             query_en = GoogleTranslator(source='vi', target='en').translate(query_vi)
 
             # Lọc batch
-            from config import CSV_DIRS, FRAME_DIRS
-            selected_csv_dirs = []
-            selected_frame_dirs = []
+            selected_csv_dirs, selected_frame_dirs = [], []
             if "Batch1" in batch_select:
                 selected_csv_dirs.append(CSV_DIRS[0])
                 selected_frame_dirs.append(FRAME_DIRS[0])
@@ -56,7 +72,7 @@ if query_vi:
             st.markdown(f"### ✅ Kết quả cho: \"{query_vi}\"")
             st.caption(f"(Dịch sang Tiếng Anh: \"{query_en}\")")
 
-            if not results: 
+            if not results:
                 st.info("❌ Không tìm thấy kết quả nào. Thử từ khóa khác.")
             else:
                 # ===== Thống kê kết quả =====
@@ -78,6 +94,7 @@ if query_vi:
                     with main_cols[col_idx % 3]:
                         st.markdown(f"<div class='video-title'>🎬 {video_name}</div>", unsafe_allow_html=True)
                         st.caption(f"📂 `{video_path}`")
+
                         if Path(video_path).exists():
                             st.video(str(video_path))
                         else:
@@ -90,6 +107,7 @@ if query_vi:
                                 with sub_cols[i % 2]:
                                     if not img_path or not Path(img_path).exists():
                                         img_path = keyframe_path_from_frame_idx_multi_auto(video_path, frame_idx)
+
                                     if img_path and Path(img_path).exists():
                                         st.image(Image.open(img_path), use_column_width=True)
                                         st.markdown(f"""
@@ -102,5 +120,6 @@ if query_vi:
                                     else:
                                         st.error(f"⚠️ Không tìm thấy ảnh cho frame {frame_idx}")
                     col_idx += 1
+
         except Exception as e:
             st.error(f"🚨 Lỗi trong quá trình tìm kiếm: {e}")

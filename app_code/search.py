@@ -1,11 +1,10 @@
 import os
 import psycopg2
-from pymilvus import Collection, connections
-from helpers import encode_text, group_timestamps, format_time, get_frame_idx_from_time_multi, keyframe_path_from_frame_idx_multi_auto
-from config import DB_PARAMS, CSV_DIRS, FRAME_DIRS
+from pymilvus import Collection
+from .helpers import encode_text, group_timestamps, format_time, get_frame_idx_from_time_multi, keyframe_path_from_frame_idx_multi_auto
+from .config import DB_PARAMS
 
-
-connections.connect(alias="default", host='localhost', port='19530')
+# ================= Database =================
 conn = psycopg2.connect(**DB_PARAMS)
 cur = conn.cursor()
 
@@ -13,6 +12,7 @@ def search_videos_by_text(text_query, top_k=10, gap_threshold=15.0, margin=5.0, 
     text_emb = encode_text(text_query)
     if text_emb is None: return []
 
+    # Milvus search (giả định đã kết nối Collection tên text_image_video_collection)
     collection = Collection("text_image_video_collection")
     ef_map = {"fast":16, "balanced":64, "accurate":128}
     ef = ef_map.get(mode,64)
@@ -28,6 +28,7 @@ def search_videos_by_text(text_query, top_k=10, gap_threshold=15.0, margin=5.0, 
     ids = [hit.id for hit in hits]
     if not ids: return []
 
+    # Lấy thông tin từ Postgres
     cur.execute("""
         SELECT v.video_path, v.title, fm.frame_idx, fm.pts_time
         FROM frame_mappings fm

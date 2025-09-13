@@ -2,16 +2,28 @@ import os, glob, pandas as pd, torch, torch.nn.functional as F
 from functools import lru_cache
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
-from config import device, MODEL_DIR, CSV_DIRS, FRAME_DIRS
+from .config import device, MODEL_DIR, CSV_DIRS, FRAME_DIRS
 
 # ================= CLIP =================
-clip_model = CLIPModel.from_pretrained("openai/clip-vit-base-patch32", cache_dir=MODEL_DIR).to(device)
-clip_processor = CLIPProcessor.from_pretrained("openai/clip-vit-base-patch32", cache_dir=MODEL_DIR)
+clip_model = CLIPModel.from_pretrained(
+    "openai/clip-vit-base-patch32",
+    cache_dir=MODEL_DIR
+).to(device)
+clip_processor = CLIPProcessor.from_pretrained(
+    "openai/clip-vit-base-patch32",
+    cache_dir=MODEL_DIR
+)
 
 # ================= Encode =================
 def encode_text(text):
     try:
-        inputs = clip_processor(text=[text], return_tensors="pt", padding=True, truncation=True, max_length=77).to(device)
+        inputs = clip_processor(
+            text=[text],
+            return_tensors="pt",
+            padding=True,
+            truncation=True,
+            max_length=77
+        ).to(device)
         with torch.no_grad():
             text_features = clip_model.get_text_features(**inputs)
         return F.normalize(text_features, p=2, dim=1)[0].cpu().numpy()
@@ -106,13 +118,14 @@ def keyframe_path_from_frame_idx_multi_auto(video_path, frame_idx):
 
 # ====== Frame từ time (multi-batch) ======
 def get_frame_idx_from_time_multi(video_path, time_start, time_end):
-    from helpers import load_csv, CSV_DIRS
     for csv_dir in CSV_DIRS:
         df = load_csv(os.path.splitext(os.path.basename(video_path))[0], csv_dir)
-        if df is None: continue
+        if df is None: 
+            continue
         start_sec = time_to_seconds(time_start)
         end_sec   = time_to_seconds(time_end)
-        if start_sec is None or end_sec is None: continue
+        if start_sec is None or end_sec is None: 
+            continue
         target_time = (start_sec + end_sec)/2
         idx = (df['pts_time'] - target_time).abs().idxmin()
         return int(df.loc[idx,'frame_idx']), csv_dir
