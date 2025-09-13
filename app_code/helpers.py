@@ -4,26 +4,28 @@ from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
 from .config import device, MODEL_DIR, CSV_DIRS, FRAME_DIRS
 
-# ================= CLIP =================
-clip_model = CLIPModel.from_pretrained(
-    "openai/clip-vit-base-patch32",
-    cache_dir=MODEL_DIR
-).to(device)
-clip_processor = CLIPProcessor.from_pretrained(
-    "openai/clip-vit-base-patch32",
-    cache_dir=MODEL_DIR
-)
+# ===================== TẠO THƯ MỤC MODEL =====================
+os.makedirs(MODEL_DIR, exist_ok=True)
 
-# ================= Encode =================
+# ===================== LOAD CLIP MODEL SAFE =====================
+def load_clip_model(model_name="openai/clip-vit-base-patch32", cache_dir=MODEL_DIR):
+    try:
+        print(f"⚡ Đang load model CLIP từ {cache_dir}...")
+        model = CLIPModel.from_pretrained(model_name, cache_dir=cache_dir).to(device)
+        processor = CLIPProcessor.from_pretrained(model_name, cache_dir=cache_dir)
+        print("✅ Load model CLIP thành công!")
+        return model, processor
+    except OSError as e:
+        print("❌ Lỗi tải model CLIP:", e)
+        print("💡 Hãy tải model offline hoặc kiểm tra kết nối Internet")
+        raise
+
+clip_model, clip_processor = load_clip_model()
+
+# ===================== ENCODE TEXT & IMAGE =====================
 def encode_text(text):
     try:
-        inputs = clip_processor(
-            text=[text],
-            return_tensors="pt",
-            padding=True,
-            truncation=True,
-            max_length=77
-        ).to(device)
+        inputs = clip_processor(text=[text], return_tensors="pt", padding=True, truncation=True, max_length=77).to(device)
         with torch.no_grad():
             text_features = clip_model.get_text_features(**inputs)
         return F.normalize(text_features, p=2, dim=1)[0].cpu().numpy()
@@ -42,7 +44,7 @@ def encode_image(image_path):
         print(f"Lỗi encode image {image_path}: {e}")
         return None
 
-# ================= Time & Frame =================
+# ===================== TIME & FRAME =====================
 def time_to_seconds(time_str):
     try:
         m, s = map(int, time_str.split(':'))
@@ -82,7 +84,7 @@ def group_timestamps(frame_list, gap_threshold=15.0, margin=5.0, min_range=5.0):
         result.append((start_time, end_time, frame_idxs))
     return result
 
-# ====== CSV Cache ======
+# ===================== CSV CACHE =====================
 @lru_cache(maxsize=256)
 def load_csv(video_name, csv_dir):
     path = os.path.join(csv_dir, f"{video_name}.csv")
@@ -91,7 +93,7 @@ def load_csv(video_name, csv_dir):
     if not all(c in df.columns for c in ["n", "frame_idx", "pts_time"]): return None
     return df
 
-# ====== Keyframe Path ======
+# ===================== KEYFRAME PATH =====================
 def keyframe_path_from_frame_idx_auto(video_path, frame_idx, csv_dir, frame_root):
     video_name = os.path.splitext(os.path.basename(video_path))[0]
     df = load_csv(video_name, csv_dir)
@@ -116,16 +118,15 @@ def keyframe_path_from_frame_idx_multi_auto(video_path, frame_idx):
         if path: return path
     return None
 
-# ====== Frame từ time (multi-batch) ======
+# ===================== FRAME TỪ TIME (MULTI-BATCH) =====================
 def get_frame_idx_from_time_multi(video_path, time_start, time_end):
+    from .helpers import load_csv, CSV_DIRS
     for csv_dir in CSV_DIRS:
         df = load_csv(os.path.splitext(os.path.basename(video_path))[0], csv_dir)
-        if df is None: 
-            continue
+        if df is None: continue
         start_sec = time_to_seconds(time_start)
         end_sec   = time_to_seconds(time_end)
-        if start_sec is None or end_sec is None: 
-            continue
+        if start_sec is None or end_sec is None: continue
         target_time = (start_sec + end_sec)/2
         idx = (df['pts_time'] - target_time).abs().idxmin()
         return int(df.loc[idx,'frame_idx']), csv_dir
