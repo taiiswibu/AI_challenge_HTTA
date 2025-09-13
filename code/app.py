@@ -3,8 +3,8 @@ from pathlib import Path
 from PIL import Image
 import pandas as pd
 from deep_translator import GoogleTranslator
-from search import search_videos_by_text, format_search_results_multi
-from helpers import keyframe_path_from_frame_idx_multi_auto
+from code.search import search_videos_by_text, format_search_results_multi
+from code.helpers import keyframe_path_from_frame_idx_multi_auto
 
 # ===================== CONFIG =====================
 st.set_page_config(
