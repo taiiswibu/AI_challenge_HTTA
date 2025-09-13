@@ -4,14 +4,17 @@ from PIL import Image
 import pandas as pd
 from deep_translator import GoogleTranslator
 import sys
+import os
+
+# ===================== FIX IMPORT PATH =====================
+# Thêm folder root của project vào sys.path
+sys.path.append(str(Path(__file__).parent))  
 
 # ===================== IMPORT MODULES =====================
-# Thêm folder code vào sys.path để tránh lỗi import khi chạy trực tiếp
-sys.path.append(str(Path(__file__).parent / "code"))
-
 from app_code.search import search_videos_by_text, format_search_results_multi
 from app_code.helpers import keyframe_path_from_frame_idx_multi_auto
 from app_code.config import CSV_DIRS, FRAME_DIRS
+
 
 
 
