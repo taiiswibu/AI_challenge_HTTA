@@ -1,97 +1,97 @@
-
-````{"id":"57302","variant":"standard","title":"README.md - HTTA Legends AI Challenge 2025 (final version)"}
-# ViviSearch – Vietnamese Semantic Multimedia Search System
-#  HTTA Legends – AI Challenge 2025
+````{"id":"83925","variant":"standard","title":"README.md – ViviSearch (HTTA Legends AI Challenge 2025)"}
+# 🎯 ViviSearch – Vietnamese Semantic Multimedia Search System  
+### 🏆 HTTA Legends – AI Challenge 2025
 
 > “Chỉ sống một lần, hãy sống sao không hối tiếc.”  
 
 ---
 
-##  Giới thiệu Team
+## 👥 Giới thiệu Team
 
 **Tên đội:** HTTA Legends  
 **Cuộc thi:** [AI Challenge 2025 – Thành phố Hồ Chí Minh](https://aichallenge.hochiminhcity.gov.vn/)  
-**Trưởng nhóm:** Vỏ Văn Tài
+**Trưởng nhóm:** Võ Văn Tài  
 **Thành viên:**  
 - Huỳnh Chí Phi Thuận  
 - Phan Nguyễn Vũ Huy  
 - Nguyễn Hoàng Ân  
 
-**Nhiệm vụ :**  
-Xây dựng hệ thống tìm kiếm đa phương tiện ngữ nghĩa tiếng Việt (Semantic Multimedia Search System), có khả năng hiểu truy vấn tự nhiên (text/voice) và trả về ảnh – video – audio có ngữ nghĩa tương đồng.
+**Nhiệm vụ:**  
+Phát triển **hệ thống tìm kiếm đa phương tiện ngữ nghĩa tiếng Việt** (Semantic Multimedia Search System), cho phép người dùng **tìm ảnh, video, audio** bằng **ngôn ngữ tự nhiên** (text/voice).  
+Hệ thống được tối ưu cho **CLIP + Milvus**, triển khai thực tế trên **Google Cloud (Ubuntu Linux)**.
 
 ---
 
-##  Mục tiêu dự án
+## 🎯 Mục tiêu dự án
 
-1. Phát triển **MVP hoàn chỉnh** gồm 3 module chính:
-   - **Giao diện người dùng:** Nhập truy vấn (text/voice), hiển thị kết quả multimedia.  
-   - **Trợ lý ảo điều phối:** Hỗ trợ truy vấn chưa rõ, gợi ý thêm ngữ cảnh.  
-   - **Tìm kiếm đa phương tiện:** Sử dụng semantic search qua CLIP + Milvus.  
+1. **Phát triển MVP hoàn chỉnh** gồm 3 module:  
+   - 🧠 *Trợ lý ảo điều phối*: hiểu truy vấn tiếng Việt, gợi ý thêm ngữ cảnh.  
+   - 🔍 *Tìm kiếm đa phương tiện*: CLIP + Milvus cho semantic search.  
+   - 💻 *Giao diện người dùng*: nhập truy vấn text/voice, hiển thị kết quả multimedia.  
 
-2. **Dữ liệu demo:**
-   - Kho dữ liệu gồm ảnh/video/audio gắn nhãn.
+2. **Dữ liệu demo:**  
+   - Kho ảnh, video, audio có nhãn ngữ nghĩa.  
    - Metadata quản lý bằng `metadata.json` hoặc `index.pkl`.
 
-3. **Demo hoàn chỉnh:**
-   - Giao diện trực quan, phản hồi nhanh.
-   - Có báo cáo kỹ thuật, hướng dẫn chạy trên cloud.
+3. **Demo hoàn chỉnh:**  
+   - Giao diện Streamlit trực quan, phản hồi nhanh.  
+   - Báo cáo kỹ thuật và hướng dẫn triển khai trên Cloud.
 
 ---
 
-##  Kiến trúc hệ thống
+## 🧩 Kiến trúc hệ thống
 
-### Tổng quan
+### ⚙️ Quy trình tổng quan
 ```
-User Query → Text/Voice → Google Translate API → Vector Query → Milvus Search → Retrieve Results → Streamlit UI
+User Query → Text/Voice → Translate API → CLIP Encoder → Milvus Search → Retrieve Results → Streamlit UI
 ```
 
-### Quy trình chính
+### 🔄 Quy trình chính
 1. **Xử lý dữ liệu video:**  
-   - Trích xuất *keyframes* bằng OpenCV.  
-   - Sinh vector embedding cho ảnh/video/audio qua CLIP.  
-   - Lưu vào **Milvus** và metadata vào **PostgreSQL**.  
+   - Tách *keyframes* bằng OpenCV.  
+   - Sinh embedding (CLIP/BLIP-2) cho ảnh/video/audio.  
+   - Lưu vector vào **Milvus**, metadata vào **PostgreSQL**.  
 
 2. **Xử lý truy vấn:**  
-   - Người dùng nhập văn bản / ảnh → chuyển thành vector embedding.  
-   - Tìm kiếm Top-K kết quả tương tự bằng **cosine similarity** trong Milvus.  
+   - Người dùng nhập text hoặc ảnh → CLIP encoder → vector embedding.  
+   - Milvus tìm Top-K kết quả gần nhất (cosine similarity).  
 
 3. **Hiển thị kết quả:**  
-   - Giao diện Streamlit hiển thị video/ảnh/audio kèm thông tin chi tiết.  
-   - Cho phép refine search, lọc lại kết quả theo tag/ngữ nghĩa.
+   - Streamlit hiển thị multimedia + metadata.  
+   - Cho phép lọc lại kết quả (theo tag, loại media, độ tương đồng).  
 
 ---
 
-##  Công nghệ chính
+## 🧠 Công nghệ chính
 
-| Thành phần | Công cụ / Framework | Ghi chú |
-|-------------|--------------------|---------|
-| **Vector DB** | Milvus v2.4.1 | Lưu trữ & tìm kiếm vector |
-| **Embedding Model** | CLIP / BLIP-2 | Sinh vector từ text + ảnh |
-| **Dịch & xử lý tiếng Việt** | Google Translate API, VnCoreNLP | Chuẩn hóa truy vấn |
-| **Web App** | Streamlit / Gradio | Giao diện trực quan, dễ deploy |
-| **Database** | PostgreSQL 15 | Quản lý metadata |
-| **Containerization** | Docker + docker-compose | Tự động hoá môi trường |
-| **Hosting** | Google Cloud Platform (GCP) | VM Ubuntu 25.04 (32GB RAM, SSD+HDD) |
+| Thành phần | Công cụ / Framework | Mô tả |
+|-------------|--------------------|-------|
+| **Vector DB** | Milvus v2.4.1 | Lưu trữ & truy vấn embedding |
+| **Embedding Model** | CLIP / BLIP-2 | Sinh vector text + ảnh |
+| **Ngôn ngữ & NLP** | Google Translate API, VnCoreNLP | Chuẩn hóa & dịch truy vấn |
+| **Frontend / Backend** | Streamlit, FastAPI | Giao diện và API chính |
+| **Database** | PostgreSQL 15 | Lưu metadata |
+| **Containerization** | Docker + Docker Compose | Đóng gói môi trường |
+| **Cloud Hosting** | Google Cloud (GCP) | VM Ubuntu 25.04 (SSD + HDD) |
 
 ---
 
-##  Hạ tầng Cloud
+## ☁️ Hạ tầng Cloud (GCP)
 
 **Nền tảng:** Google Cloud Compute Engine  
 
-**Cấu hình máy chủ:**
+**Cấu hình VM:**
 - 8 vCPU Intel® Xeon®  
 - 32GB RAM  
 - 250GB SSD (chạy hệ thống)  
-- 280GB HDD (lưu dữ liệu embedding + media)  
-- OS: Ubuntu 25.04 (64-bit, Kernel 6.14.0-gcp)
+- 280GB HDD (lưu dữ liệu media + embedding)  
+- OS: Ubuntu 25.04 (Kernel 6.14.0-gcp)
 
-> Tất cả các thành viên đều có user riêng để SSH vào và thao tác trên máy chủ.
+> Tất cả thành viên được phân quyền SSH riêng, thao tác qua Linux CLI và Docker.
 
 ---
 
-###  Thiết lập môi trường ban đầu
+## ⚙️ Thiết lập môi trường
 
 ```bash
 # Cập nhật & cài đặt cơ bản
@@ -99,7 +99,7 @@ sudo apt update && sudo apt upgrade -y
 sudo apt install docker.io docker-compose python3-venv git -y
 ```
 
-###  Tạo user & phân quyền trên Linux
+### 👤 Phân quyền người dùng Linux
 
 ```bash
 # Tạo user riêng cho từng thành viên
@@ -108,10 +108,10 @@ sudo adduser huy
 sudo adduser an
 
 # Phân quyền thư mục project + data
-sudo mkdir -p /home/ubuntu/AI_CHALLENGE_HTTA/data/batch1
-sudo mkdir -p /home/ubuntu/AI_CHALLENGE_HTTA/data/batch2
-
+sudo mkdir -p /home/ubuntu/AI_CHALLENGE_HTTA/data/{batch1,batch2}
 sudo chown -R tai:htta /home/ubuntu/AI_CHALLENGE_HTTA
+
+# Thêm quyền Docker
 sudo usermod -aG docker thuan
 sudo usermod -aG docker huy
 sudo usermod -aG docker an
@@ -119,7 +119,7 @@ sudo usermod -aG docker an
 
 ---
 
-##  Cấu trúc thư mục
+## 📂 Cấu trúc thư mục
 
 ```
 AI_CHALLENGE_HTTA/
@@ -132,10 +132,10 @@ AI_CHALLENGE_HTTA/
 │   ├── search.py              # Logic tìm kiếm vector
 │   └── create_postgres.ipynb  # Tạo bảng & import metadata
 │
-├── app.py                     # Main app Streamlit
-├── docker-compose.yml         # Chạy Milvus + Postgres
+├── app.py                     # Main Streamlit app
+├── docker-compose.yml         # Milvus + PostgreSQL container
 ├── requirements.txt           # Thư viện Python
-├── README.md                  # File mô tả dự án
+├── README.md                  # Mô tả dự án
 ├── note_to_run_app.txt        # Ghi chú kỹ thuật
 ├── venv/                      # Virtual environment
 └── data/                      # Lưu embedding & media
@@ -143,7 +143,7 @@ AI_CHALLENGE_HTTA/
 
 ---
 
-##  Hướng dẫn chạy hệ thống
+## 🚀 Hướng dẫn chạy hệ thống
 
 ```bash
 # 1. Clone repo
@@ -157,67 +157,70 @@ source venv/bin/activate
 # 3. Cài thư viện
 pip install -r requirements.txt
 
-# 4. Chạy Docker services
+# 4. Khởi chạy Docker services
 docker-compose up -d
 
-# 5. Chạy giao diện web (Streamlit)
+# 5. Chạy giao diện web
 streamlit run app.py
 ```
 
-> (Ảnh giao diện demo sẽ được thêm tại đây)
+> 💡 Ảnh & video demo sẽ được thêm sau khi hệ thống hoàn thiện.
 
 ---
 
-##  Phân công & Vai trò
-| Thành viên | Vai trò | Công việc | Công nghệ chính |
-|-------------|----------|------------|----------------|
-| **Vỏ Văn Tài** | Leader /Data Engineer | Thiết lập Cloud (GCP), cấu hình Linux, xây dựng giao diện & CLIP model, tích hợp pipeline,tối ưu truy vấn Milvus | Docker, Python, Streamlit, CLIP ,Milvus|
-| **Nguyễn Hoàng Ân** | NLP Engineer | Xử lý tiếng Việt, tích hợp Google Translate API, chuẩn hóa truy vấn | HuggingFace, VnCoreNLP |
-| **Phan Nguyễn Vũ Huy** | Vision Engineer | Xây dựng mô-đun tìm kiếm ảnh/video/audio, tối ưu truy vấn Milvus | PyTorch, OpenCV, Milvus |
-| **Huỳnh Chí Phi Thuận** | Data Engineer / Backend | Xây dựng hệ thống upload vector, quản lý metadata, tạo database, tối ưu truy vấn Milvus| PostgreSQL, Docker,Milvus |
+## 👨‍💻 Phân công & Vai trò
+
+| Thành viên | Vai trò | Nhiệm vụ | Kỹ năng chính |
+|-------------|----------|-----------|----------------|
+| **Võ Văn Tài** | Leader / Data Engineer | Thiết lập GCP, tối ưu pipeline, tích hợp CLIP + Milvus, build UI | Docker, Python, Streamlit, Milvus |
+| **Nguyễn Hoàng Ân** | NLP Engineer | Xử lý tiếng Việt, dịch và chuẩn hóa truy vấn | HuggingFace, VnCoreNLP |
+| **Phan Nguyễn Vũ Huy** | Vision Engineer | Tìm kiếm ảnh/video/audio, tối ưu CLIP embedding | PyTorch, OpenCV |
+| **Huỳnh Chí Phi Thuận** | Backend Engineer | Xây dựng metadata DB, quản lý upload vector | PostgreSQL, Docker |
 
 ---
 
-## Điểm nổi bật
+## 🌟 Điểm nổi bật
 
-- **CLIP + Milvus:** Tìm kiếm hình ảnh theo ngữ nghĩa, không cần huấn luyện lại.  
-- **Triển khai thực tế trên GCP Ubuntu**, phân quyền Linux cho từng user.  
-- **Kiến trúc Docker hóa**, dễ mở rộng và tái tạo môi trường.  
-- **Hỗ trợ truy vấn tiếng Việt** và dịch tự động qua API.  
+- **CLIP + Milvus:** Semantic Search ảnh/video/audio chính xác.  
+- **Triển khai thật trên Google Cloud Linux.**  
+- **Hệ thống Docker hóa:** dễ mở rộng và tái tạo môi trường.  
+- **Tích hợp xử lý tiếng Việt + dịch tự động.**  
 
 ---
-Kỹ năng nhóm học được
-Nhóm kỹ năng	Mô tả chi tiết
-AI/ML Systems	Semantic Search, CLIP embeddings, BLIP-2, RAG architecture
-Data Engineering	Preprocessing, metadata schema, PostgreSQL integration
-DevOps & Cloud	Google Cloud setup, Docker Compose, Linux permission control
-Web & Visualization	Streamlit UI, API interaction, multimedia rendering
-Collaboration	GitHub workflow, phân quyền hệ thống, teamwork hiệu quả
 
-##  Tài liệu tham khảo
+## 🧩 Kỹ năng nhóm học được
 
-### 🔗 Nguồn chính thức & hướng dẫn
+| Nhóm kỹ năng | Mô tả chi tiết |
+|---------------|----------------|
+| **AI/ML Systems** | CLIP, BLIP-2, Semantic Search, RAG pipeline |
+| **Data Engineering** | Metadata schema, PostgreSQL integration |
+| **DevOps & Cloud** | GCP setup, Docker Compose, Linux permissions |
+| **Web & Visualization** | Streamlit UI, API integration, multimedia search |
+| **Collaboration** | GitHub workflow, SSH multi-user, teamwork hiệu quả |
+
+---
+
+## 📚 Tài liệu tham khảo
+
 - [AI Challenge 2025 – Website chính thức](https://aichallenge.hochiminhcity.gov.vn/)  
 - [Video Browser Showdown 2024 Systems](https://videobrowsershowdown.org/teams/vbs2024-systems/)  
-- [CLIP Model Documentation – HuggingFace](https://huggingface.co/docs/transformers/model_doc/clip)  
-- [RAG Chatbot Architecture – CSC Vietnam](https://csc.edu.vn/tin-tuc/Blog-chia-se/kham-pha-rag-huong-dan-xay-dung-chatbot-voi-rag-8433)  
-- [Vector DB Comparison – RealPython](https://realpython.com/chromadb-vector-database/)
-- Radford, A. *et al.* (2021). [Learning Transferable Visual Models From Natural Language Supervision (CLIP)](https://arxiv.org/abs/2103.00020). *arXiv preprint arXiv:2103.00020.*  
-- Li, J. *et al.* (2023). [BLIP-2: Bootstrapping Language-Image Pre-training with Frozen Image Encoders and Large Language Models](https://arxiv.org/abs/2301.12597). *arXiv.*  
-- Milvus Team. (2022). [Vector Database for AI Applications](https://milvus.io/blog). *Zilliz Tech.*  
-- Zhang, Y. *et al.* (2022). *Efficient Semantic Search with Vector Databases.* *ACM Multimedia Conference.*  
-- Nguyen, H. *et al.* (2020). *VnCoreNLP: A Vietnamese Natural Language Processing Toolkit.* *Proceedings of the 12th Language Resources and Evaluation Conference (LREC 2020).*
+- [CLIP Model – HuggingFace](https://huggingface.co/docs/transformers/model_doc/clip)  
+- [RAG Architecture – CSC Vietnam](https://csc.edu.vn/tin-tuc/Blog-chia-se/kham-pha-rag-huong-dan-xay-dung-chatbot-voi-rag-8433)  
+- [Vector DB Comparison – RealPython](https://realpython.com/chromadb-vector-database/)  
+- Radford, A. *et al.* (2021). *Learning Transferable Visual Models From Natural Language Supervision (CLIP)*.  
+- Li, J. *et al.* (2023). *BLIP-2: Bootstrapping Language-Image Pre-training*.  
+- Milvus Team. (2022). *Vector Database for AI Applications.*  
+- Nguyen, H. *et al.* (2020). *VnCoreNLP: A Vietnamese NLP Toolkit.*
 
 ---
 
-##  Demo & Video trình diễn
- [Xem video demo trên YouTube](https://youtu.be/your_demo_link)
+## 🎬 Demo & Liên hệ
 
-##  Liên hệ
-**Vỏ Văn Tài** – Data Engineer / AI Developer  
- Email: vovantai2k4@gmail.com
+📺 **Video demo:** [YouTube link (upcoming)](https://youtu.be/your_demo_link)  
+📧 **Liên hệ:** Võ Văn Tài – *Data Engineer / AI Developer*  
+✉️ Email: **vovantai2k4@gmail.com**  
 
-##  Ghi chú
-Nếu bạn thấy dự án này thú vị, hãy ** Star** repo để ủng hộ team HTTA Legends!
+---
 
-
+> 🌠 Nếu bạn thấy dự án này thú vị, hãy **Star** repo để ủng hộ team **HTTA Legends**!
+````
