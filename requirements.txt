@@ -1,0 +1,10 @@
+psycopg2-binary
+pandas
+Pillow
+torch
+transformers
+pymilvus
+deep-translator
+streamlit
+opencv-python
+sentencepiece
